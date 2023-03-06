@@ -1,28 +1,29 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
-import { auth } from "../firebase/firebase";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useUserAuth } from "../context/UserAuthContext";
+
 function Login() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const onSubmit = async (e) => {
+  const [error, setError] = useState("");
+  const { logIn } = useUserAuth();
+  const navigate = useNavigate();
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    await signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        navigate("/home");
-        console.log(user);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode, errorMessage);
-      });
+    setError("");
+    try {
+      await logIn(email, password);
+      navigate("/home");
+    } catch (error) {
+      setError(error.message);
+    }
   };
   return (
-    <div>
-      <form>
+    <>
+      {error && <p>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <h1>Sign In</h1>
+        <br></br>
         <label>Email:</label>
         <input
           value={email}
@@ -31,6 +32,7 @@ function Login() {
           placeholder="Email address"
           type="email"
         />
+        <br></br>
         <label>password:</label>
         <input
           value={password}
@@ -39,16 +41,14 @@ function Login() {
           placeholder="secret"
           type="password"
         />
-        <button type="submit" onClick={onSubmit}>
-          Login
-        </button>
+        <br></br>
+        <button type="submit">Log In</button>
       </form>
       <p>
-        No account yet?{""}
-        <NavLink to="/signup">sign up</NavLink>
+        Don't have an account?{""}
+        <NavLink to="/signup">Sign Up</NavLink>
       </p>
-    </div>
+    </>
   );
 }
-
 export default Login;

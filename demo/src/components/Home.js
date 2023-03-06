@@ -1,38 +1,28 @@
-import React, { useEffect } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../firebase/firebase";
+import React from "react";
+import { useUserAuth } from "../context/UserAuthContext";
 import { useNavigate } from "react-router-dom";
 function Home() {
   const navigate = useNavigate();
-
-  const handleLogOut = () => {
-    signOut(auth)
-      .then(() => {
-        navigate("/");
-        console.log("Signed out successfully");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const { logOut } = useUserAuth();
+  const { user } = useUserAuth();
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      navigate("/");
+    } catch (error) {
+      console.log(error.message);
+    }
   };
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const uid = user.id;
-        console.log("uid", uid);
-      } else {
-        console.log("user is logged out");
-      }
-    });
-  }, []);
   return (
-    <section>
-      <p>Welcome Home</p>
+    <>
       <div>
-        <button onClick={handleLogOut}>LogOut</button>
+        Hello Welcome <br />
+        {user && user.email}
       </div>
-    </section>
+      <div className="">
+        <button onClick={handleLogout}>Log Out</button>
+      </div>
+    </>
   );
 }
 
