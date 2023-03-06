@@ -18,7 +18,7 @@ function Todo() {
         )
     }
     useEffect(() => {
-        fetchPost();
+    fetchPost();
     }, [todos])
     const addTodo = async () => {
         try {
